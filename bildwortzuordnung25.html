@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visuelle Wahrnehmung: 10 Beispiele</title>
+    <!-- WICHTIG: Polyfill für Touch-Geräte (Smartphones/Tablets) -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+
+    <style>
+        :root {
+            --primary: #3498db;
+            --success: #2ecc71;
+            --error: #e74c3c;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary);
+        }
+
+        .instruction {
+            text-align: center;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        /* --- Drag & Drop Bereiche --- */
+        
+        /* Der Pool mit den Bildern */
+        .source-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            background: #eef2f3;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 120px;
+            border: 2px solid #ccc;
+            margin-bottom: 30px;
+        }
+
+        /* Die Ziel-Zonen (Verben) */
+        .target-container {
+            display: flex;
+            gap: 20px;
+            justify-content: space-between;
+        }
+
+        .target-zone {
+            flex: 1;
+            background: #fafafa;
+            border: 3px dashed #bdc3c7;
+            border-radius: 10px;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .target-zone h3 {
+            margin-top: 0;
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            text-align: center;
+            padding: 8px 0;
+            border-radius: 5px;
+            font-size: 1.2rem;
+        }
+
+        .target-zone.drag-over {
+            background: #e1f5fe;
+            border-color: var(--primary);
+            transform: scale(1.02);
+        }
+
+        /* --- Die "Bilder" (Karten) --- */
+        .img-card {
+            width: 100px;
+            height: 130px; /* Leicht erhöht für mehr Textplatz */
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            user-select: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            touch-action: none; 
+            position: relative;
+        }
+
+        .img-card:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+            z-index: 100;
+        }
+
+        .img-icon {
+            font-size: 40px;
+            margin-bottom: 5px;
+        }
+
+        .img-label {
+            font-size: 11px;
+            text-align: center;
+            line-height: 1.2;
+            padding: 0 5px;
+            color: #555;
+        }
+
+        /* Visuelles Feedback */
+        .target-zone.correct {
+            border-color: var(--success);
+            background-color: rgba(46, 204, 113, 0.1);
+        }
+
+        .target-zone.incorrect {
+            border-color: var(--error);
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+
+        .img-card.wrong-item {
+            border-color: var(--error);
+            background-color: #fadbd8;
+        }
+        
+        .img-card.correct-item {
+            border-color: var(--success);
+            background-color: #d5f5e3;
+        }
+
+        /* --- Buttons --- */
+        .btn-container {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            color: white;
+        }
+        
+        button:hover { opacity: 0.9; }
+        .btn-check { background-color: var(--primary); }
+        .btn-reset { background-color: #7f8c8d; }
+        .btn-solve { background-color: #f39c12; }
+
+        /* --- Responsive Design (Mobile) --- */
+        @media (max-width: 768px) {
+            .target-container {
+                flex-direction: column; 
+            }
+            
+            .target-zone {
+                min-height: 150px; 
+                flex-direction: row; 
+                flex-wrap: wrap;
+                align-content: flex-start;
+                justify-content: center;
+                gap: 10px;
+            }
+            
+            .target-zone h3 {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Visuelle Wahrnehmung: 10 Beispiele</h2>
+    <p class="instruction">
+        Schau dir die Bilder genau an. 
+        <br>Ziehe die Gegenstände in die richtige Box: <strong>Steht</strong>, <strong>Liegt</strong> oder <strong>Hängt</strong> es?
+    </p>
+
+    <!-- Der Pool mit den Bildern -->
+    <div class="source-pool" id="source-pool">
+        <!-- Karte 1: Teller (steht) -->
+        <div class="img-card" draggable="true" data-verb="stood" id="c1">
+            <div class="img-icon">🍽️</div>
+            <div class="img-label">Teller<br>(im Regal)</div>
+        </div>
+
+        <!-- Karte 2: Teller (liegt) -->
+        <div class="img-card" draggable="true" data-verb="lay" id="c2">
+            <div class="img-icon">🍽️</div>
+            <div class="img-label">Teller<br>(auf Tisch)</div>
+        </div>
+
+        <!-- Karte 3: Buch (steht) -->
+        <div class="img-card" draggable="true" data-verb="stood" id="c3">
+            <div class="img-icon">📕</div>
+            <div class="img-label">Buch<br>(im Regal)</div>
+        </div>
+
+        <!-- Karte 4: Buch (liegt) -->
+        <div class="img-card" draggable="true" data-verb="lay" id="c4">
+            <div class="img-icon">📖</div>
+            <div class="img-label">Buch<br>(auf Tisch)</div>
+        </div>
+
+        <!-- Karte 5: Mantel (hängt) -->
+        <div class="img-card" draggable="true" data-verb="hung" id="c5">
+            <div class="img-icon">🧥</div>
+            <div class="img-label">Mantel<br>(im Schrank)</div>
+        </div>
+
+        <!-- Karte 6: Laptop (steht/offen) -->
+        <div class="img-card" draggable="true" data-verb="stood" id="c6">
+            <div class="img-icon">💻</div>
+            <div class="img-label">Laptop<br>(offen)</div>
+        </div>
+        
+        <!-- Karte 7: Laptop (liegt/zu) -->
+        <div class="img-card" draggable="true" data-verb="lay" id="c7">
+            <div class="img-icon">💻</div>
+            <div class="img-label">Laptop<br>(zu)</div>
+        </div>
+        
+        <!-- Karte 8: Bild (hängt) -->
+        <div class="img-card" draggable="true" data-verb="hung" id="c8">
+            <div class="img-icon">🖼️</div>
+            <div class="img-label">Bild<br>(an Wand)</div>
+        </div>
+
+        <!-- NEU: Karte 9: Lampe (hängt) -->
+        <div class="img-card" draggable="true" data-verb="hung" id="c9">
+            <div class="img-icon">💡</div>
+            <div class="img-label">Lampe<br>(an Decke)</div>
+        </div>
+
+        <!-- NEU: Karte 10: Glas (steht) -->
+        <div class="img-card" draggable="true" data-verb="stood" id="c10">
+            <div class="img-icon">🥛</div>
+            <div class="img-label">Glas<br>(auf Tisch)</div>
+        </div>
+    </div>
+
+    <!-- Die Ziel-Zonen -->
+    <div class="target-container">
+        
+        <!-- Zone: Стоит -->
+        <div class="target-zone" data-accept="stood" id="zone-stood">
+            <h3>СТОИТ (Steht)</h3>
+        </div>
+
+        <!-- Zone: Лежит -->
+        <div class="target-zone" data-accept="lay" id="zone-lay">
+            <h3>ЛЕЖИТ (Liegt)</h3>
+        </div>
+
+        <!-- Zone: Висит -->
+        <div class="target-zone" data-accept="hung" id="zone-hung">
+            <h3>ВИСИТ (Hängt)</h3>
+        </div>
+
+    </div>
+
+    <!-- Steuerung -->
+    <div class="btn-container">
+        <button class="btn-check" onclick="checkVisualTask()">Überprüfen</button>
+        <button class="btn-reset" onclick="resetVisualTask()">Zurücksetzen</button>
+        <button class="btn-solve" onclick="solveVisualTask()">Lösung anzeigen</button>
+    </div>
+
+</div>
+
+<script>
+    /* --- Drag & Drop Logic --- */
+    let currentDragItem = null;
+
+    // 1. Event Listener für die Draggable Items (Karten)
+    const cards = document.querySelectorAll('.img-card');
+    
+    cards.forEach(card => {
+        card.addEventListener('dragstart', function(e) {
+            currentDragItem = this;
+            e.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => this.style.opacity = '0.4', 0);
+        });
+
+        card.addEventListener('dragend', function(e) {
+            currentDragItem = null;
+            this.style.opacity = '1';
+        });
+    });
+
+    // 2. Event Listener für die Drop Zones
+    const zones = document.querySelectorAll('.target-zone, .source-pool');
+
+    zones.forEach(zone => {
+        zone.addEventListener('dragover', function(e) {
+            e.preventDefault(); 
+            e.dataTransfer.dropEffect = 'move';
+            
+            if (this.classList.contains('target-zone')) {
+                this.classList.add('drag-over');
+            }
+        });
+
+        zone.addEventListener('dragleave', function(e) {
+            if (this.classList.contains('target-zone')) {
+                this.classList.remove('drag-over');
+            }
+        });
+
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+
+            if (currentDragItem) {
+                this.appendChild(currentDragItem);
+                currentDragItem.classList.remove('correct-item', 'wrong-item');
+            }
+        });
+    });
+
+    /* --- Funktionen für Buttons --- */
+
+    function checkVisualTask() {
+        const targetZones = document.querySelectorAll('.target-zone');
+        
+        targetZones.forEach(zone => {
+            const acceptedType = zone.getAttribute('data-accept');
+            const items = zone.querySelectorAll('.img-card');
+            
+            zone.classList.remove('correct', 'incorrect');
+            
+            if (items.length === 0) return;
+
+            let allCorrectInThisZone = true;
+
+            items.forEach(item => {
+                const itemType = item.getAttribute('data-verb');
+                
+                if (itemType === acceptedType) {
+                    item.classList.add('correct-item');
+                    item.classList.remove('wrong-item');
+                } else {
+                    item.classList.add('wrong-item');
+                    item.classList.remove('correct-item');
+                    allCorrectInThisZone = false;
+                }
+            });
+
+            if (allCorrectInThisZone) {
+                zone.classList.add('correct');
+            } else {
+                zone.classList.add('incorrect');
+            }
+        });
+    }
+
+    function resetVisualTask() {
+        const sourcePool = document.getElementById('source-pool');
+        const allCards = document.querySelectorAll('.img-card');
+        const zones = document.querySelectorAll('.target-zone');
+
+        // Alle Karten zurück in den Pool, aber Sortierung beibehalten (optional)
+        // Wir nehmen einfach die NodeList, sie ist meist in DOM-Order
+        // Sortieren nach ID (c1...c10) sorgt dafür, dass sie in der ursprünglichen Reihenfolge landen
+        const sortedCards = Array.from(allCards).sort((a, b) => {
+            const idA = parseInt(a.id.replace('c', ''));
+            const idB = parseInt(b.id.replace('c', ''));
+            return idA - idB;
+        });
+
+        sortedCards.forEach(card => {
+            sourcePool.appendChild(card);
+            card.classList.remove('correct-item', 'wrong-item');
+            card.style.opacity = '1';
+        });
+
+        zones.forEach(zone => {
+            zone.classList.remove('correct', 'incorrect', 'drag-over');
+        });
+    }
+
+    function solveVisualTask() {
+        resetVisualTask();
+
+        const allCards = document.querySelectorAll('.img-card');
+        
+        allCards.forEach(card => {
+            const type = card.getAttribute('data-verb');
+            let targetId = '';
+
+            if (type === 'stood') targetId = 'zone-stood';
+            if (type === 'lay') targetId = 'zone-lay';
+            if (type === 'hung') targetId = 'zone-hung';
+
+            const targetZone = document.getElementById(targetId);
+            if (targetZone) {
+                targetZone.appendChild(card);
+                card.classList.add('correct-item');
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
