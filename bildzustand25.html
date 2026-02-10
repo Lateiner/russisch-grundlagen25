@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logik-Check: Das Laptop-Dilemma (10 Beispiele)</title>
+    
+    <style>
+        :root {
+            --primary: #3498db;
+            --success: #2ecc71;
+            --error: #e74c3c;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .instruction {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #7f8c8d;
+        }
+
+        /* --- Grid Layout für die Karten --- */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .item-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .item-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+
+        /* --- Visuelle Darstellung (Emojis & Rotation) --- */
+        .visual-container {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .emoji-icon {
+            font-size: 50px;
+            transition: transform 0.3s;
+        }
+
+        /* Spezifische Zustände per CSS simuliert */
+        .state-tipped {
+            transform: rotate(90deg); /* Umgekippt */
+        }
+        
+        .state-lying {
+            transform: rotate(-90deg); /* Liegend */
+        }
+
+        .item-desc {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #34495e;
+            font-size: 1.1em;
+        }
+
+        .item-context {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            height: 40px; /* Fixe Höhe für Alignment */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- Dropdown Styling --- */
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        select:focus {
+            border-color: var(--primary);
+        }
+
+        /* Feedback Farben */
+        select.correct {
+            border-color: var(--success);
+            background-color: #d5f5e3;
+            color: #155724;
+        }
+
+        select.incorrect {
+            border-color: var(--error);
+            background-color: #fadbd8;
+            color: #721c24;
+        }
+
+        /* --- Buttons --- */
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+        }
+
+        button:hover { opacity: 0.9; }
+        .btn-check { background-color: var(--primary); }
+        .btn-reset { background-color: #7f8c8d; }
+        .btn-solve { background-color: #f39c12; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Logik-Check: Das Laptop-Dilemma</h2>
+    <p class="instruction">
+        Schau dir den Gegenstand an. <br>
+        Wähle das passende Verb: <strong>стоит</strong> (steht) oder <strong>лежит</strong> (liegt)?
+    </p>
+
+    <div class="items-grid">
+
+        <!-- Item 1: Laptop offen -->
+        <div class="item-card">
+            <div class="visual-container">
+                <div class="emoji-icon">💻</div>
+            </div>
+            <div class="item-desc">Ноутбук (Laptop)</div>
+            <div class="item-context">ist aufgeklappt / offen</div>
+            <select data-correct="стоит">
+                <option value="">-- wähle --</option>
+                <option value="стоит">стоит</option>
+                <option value="лежит">лежит</option>
+            </select>
+        </div>
+
+        <!-- Item 2: Laptop zu -->
+        <div class="item-card">
+            <div class="visual-container">
+                <!-- Wir nutzen ein geschlossenes Buch Icon als Symbol für geschlossenen Laptop -->
+                <div class="emoji-icon">📓</div>
+            </div>
+            <div class="item-desc">Ноутбук (Laptop)</div>
+            <div class="item-context">ist zugeklappt / flach</div>
+            <select data-correct="лежит">
+                <option value="">-- wähle --</option>
+                <option value="стоит">стоит</option>
+                <option value="лежит">лежит</option>
+            </select>
+        </div>
+
+        <!-- Item 3: Flasche stehend -->
+        <div class="item-card">
+            <div class="visual-container">
+                <div class="emoji-icon">🍾</div>
+            </div>
+            <div class="item-desc">Бутылка (Flasche)</div>
+            <div class="item-context">auf dem Tisch</div>
+            <select data-correct="стоит">
+                <option value="">-- wähle --</option>
+                <option value="стоит">стоит</option>
+                <option value="лежит">лежит</option>
+            </select>
+        </div>
+
+        <!-- Item 4: Flasche umgekippt -->
+        <div class="item-card">
+            <div class="visual-container">
+                <!-- CSS Rotation simuliert das Umkippen -->
+                <div class="emoji-icon state-tipped">🍾</div>
+            </div>
+            <div class="item-desc">Бутылка (Flasche)</div>
+            <div class="item-context">ist umgekippt / am Boden</div>
+            <select data-correct="лежит">
+                <option value="">-- wähle --</option>
+                <option value="стоит">стоит</option>
+                <option value="лежит">лежит</option>
+            </select>
+        </div>
+
+        <!-- Item 5: Regenschirm aufgespannt/stehend -->
+        <div class="item-card">
+            <div class="visual-container">
+                <div class="emoji-icon">☂️</div>
+            </div>
+            <div class="item-desc">Зонт (Schirm)</div>
+            <div class="item-context">in der Ecke / trocknet</div>
+            <select data-correct="стоит">
+                <option value="">-- wähle --</option>
+                <option value="стоит">стоит</option>
+                <option value="лежит">лежит</option>
+            </select>
+        </div>
+
+        <!-- Item 6: Regenschirm liegend -->
+        <div class="item-card">
+            <div class="visual-container">
+                <div class="emoji-icon state-lying">🌂</div>
+            </div>
+            <div class="item-desc">Зонт (Schirm)</div>
+            <div class="item-context">zusammengeklappt im Regal</div>
+            <select data-correct="лежит">
+                <option value="">-- wähle --</option>
+                <option value="стоит">стоит</option>
+                <option value="лежит">лежит</option>
+            </select>
+        </div>
+
+        <!-- Item 7: Teller im Abtropfgestell -->
+        <div class="item-card">
+            <div class="visual-container">
+                <div class="emoji-icon">🍽️</div>
+            </div>
+            <div class="item-desc">Тарелка (Teller)</div>
+            <div class="item-context">im Abtropfgestell (senkrecht)</div>
+            <select data-correct="стоит">
+                <option value="">-- wähle --</option>
+                <option value="стоит">стоит</option>
+                <option value="лежит">лежит</option>
+            </select>
+        </div>
+        
+        <!-- Item 8: Teppich am Boden -->
+        <div class="item-card">
+            <div class="visual-container">
+                <div class="emoji-icon">🧶</div>
+            </div>
+            <div class="item-desc">Ковёр (Teppich)</div>
+            <div class="item-context">auf dem Fußboden</div>
+            <select data-correct="лежит">
+                <option value="">-- wähle --</option>
+                <option value="стоит">стоит</option>
+                <option value="лежит">лежит</option>
+            </select>
+        </div>
+
+        <!-- NEU: Item 9: Auto -->
+        <div class="item-card">
+            <div class="visual-container">
+                <div class="emoji-icon">🚗</div>
+            </div>
+            <div class="item-desc">Машина (Auto)</div>
+            <div class="item-context">in der Garage / auf der Straße</div>
+            <select data-correct="стоит">
+                <option value="">-- wähle --</option>
+                <option value="стоит">стоит</option>
+                <option value="лежит">лежит</option>
+            </select>
+        </div>
+
+        <!-- NEU: Item 10: Ball -->
+        <div class="item-card">
+            <div class="visual-container">
+                <div class="emoji-icon">⚽</div>
+            </div>
+            <div class="item-desc">Мяч (Ball)</div>
+            <div class="item-context">auf dem Rasen (keine Basis)</div>
+            <select data-correct="лежит">
+                <option value="">-- wähle --</option>
+                <option value="стоит">стоит</option>
+                <option value="лежит">лежит</option>
+            </select>
+        </div>
+
+    </div>
+
+    <div class="btn-container">
+        <button class="btn-check" onclick="checkLogicTask()">Überprüfen</button>
+        <button class="btn-reset" onclick="resetLogicTask()">Zurücksetzen</button>
+        <button class="btn-solve" onclick="solveLogicTask()">Lösung anzeigen</button>
+    </div>
+</div>
+
+<script>
+    function checkLogicTask() {
+        const selects = document.querySelectorAll('select');
+        
+        selects.forEach(select => {
+            const userAnswer = select.value;
+            const correctAnswer = select.getAttribute('data-correct');
+
+            // Reset classes
+            select.classList.remove('correct', 'incorrect');
+
+            if (userAnswer === "") return; // Keine Auswahl getroffen
+
+            if (userAnswer === correctAnswer) {
+                select.classList.add('correct');
+            } else {
+                select.classList.add('incorrect');
+            }
+        });
+    }
+
+    function resetLogicTask() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.value = "";
+            select.classList.remove('correct', 'incorrect');
+        });
+    }
+
+    function solveLogicTask() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.value = select.getAttribute('data-correct');
+            select.classList.remove('incorrect');
+            select.classList.add('correct');
+        });
+    }
+</script>
+
+</body>
+</html>
