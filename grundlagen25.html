@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russische Grammatik: Verben der Position</title>
+    <!-- Polyfill für Drag & Drop auf Touch-Geräten -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --text-color: #2c3e50;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        /* Einführungskarte */
+        .intro-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .intro-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .intro-table th, .intro-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .intro-table th {
+            background-color: #eee;
+        }
+
+        /* Übungscontainer */
+        .exercise-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .exercise-header {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .task-content {
+            margin-bottom: 20px;
+        }
+
+        /* Inputs und Selects */
+        select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            margin: 5px 0;
+            width: auto;
+            min-width: 150px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        select.correct, .dropzone.correct, .sentence-dropzone.correct {
+            border-color: var(--success-color);
+            background-color: rgba(46, 204, 113, 0.1);
+        }
+
+        select.incorrect, .dropzone.incorrect, .sentence-dropzone.incorrect {
+            border-color: var(--error-color);
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn-check {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-check:hover { background-color: #2980b9; }
+
+        .btn-reset {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .btn-reset:hover { background-color: #7f8c8d; }
+
+        .btn-solution {
+            background-color: #f39c12;
+            color: white;
+        }
+        .btn-solution:hover { background-color: #d35400; }
+
+        /* Drag and Drop Styles */
+        .draggable-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            min-height: 50px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+
+        .draggable-item {
+            padding: 8px 15px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: grab;
+            user-select: none;
+            touch-action: none; /* Wichtig für Touch Drag */
+        }
+
+        .draggable-item:active {
+            cursor: grabbing;
+        }
+
+        .drop-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .dropzone {
+            flex: 1;
+            min-width: 120px;
+            min-height: 100px;
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            background: #fafafa;
+        }
+
+        /* Speziell für Aufgabe 8 */
+        .sentence-dropzone {
+            min-height: 60px;
+            border: 2px dashed #3498db;
+            border-radius: 5px;
+            padding: 10px;
+            background: #eef7fb;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .sentence-dropzone::before {
+            content: 'Ziehe die Wörter hierher:';
+            color: #bdc3c7;
+            font-size: 0.9em;
+            width: 100%;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        .sentence-dropzone .draggable-item {
+            margin: 0;
+        }
+
+        .dropzone h4 {
+            margin-top: 0;
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* Radio Group */
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .drop-area {
+                flex-direction: column;
+            }
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik: Position & Platzierung</h1>
+
+    <!-- Einführung -->
+    <div class="intro-card">
+        <h2>Einführung</h2>
+        <p>Im Russischen ist es sehr wichtig zu unterscheiden, ob ein Gegenstand steht, liegt oder hängt.</p>
+        <table class="intro-table">
+            <thead>
+                <tr>
+                    <th>Position (Wo? - Präpositiv)</th>
+                    <th>Aktion (Wohin? - Akkusativ)</th>
+                    <th>Erklärung</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>стоять</strong> (stehen)</td>
+                    <td><strong>ставить / поставить</strong> (stellen)</td>
+                    <td>Vertikale Objekte (Vase, Glas, Mensch).</td>
+                </tr>
+                <tr>
+                    <td><strong>лежать</strong> (liegen)</td>
+                    <td><strong>класть / положить</strong> (legen)</td>
+                    <td>Horizontale Objekte (Buch, Teppich, Stift).</td>
+                </tr>
+                <tr>
+                    <td><strong>висеть</strong> (hängen)</td>
+                    <td><strong>вешать / повесить</strong> (hängen)</td>
+                    <td>An einem Punkt befestigt (Bild, Mantel).</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Aufgabe 1: Multiple Choice (Aktion) -->
+    <div class="exercise-card" id="ex1">
+        <div class="exercise-header">
+            <h3>Aufgabe 1: Die richtige Handlung wählen</h3>
+            <p>Du hast ein Glas Wasser. Was machst du damit auf den Tisch?</p>
+        </div>
+        <div class="task-content radio-group">
+            <label class="radio-label"><input type="radio" name="ex1" value="wrong"> Я кладу стакан на стол.</label>
+            <label class="radio-label"><input type="radio" name="ex1" value="correct"> Я ставлю стакан на стол.</label>
+            <label class="radio-label"><input type="radio" name="ex1" value="wrong"> Я вешаю стакан на стол.</label>
+        </div>
+        <div class="btn-group">
+            <button class="btn-check" onclick="checkRadio('ex1')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetRadio('ex1')">Zurücksetzen</button>
+            <button class="btn-solution" onclick="showRadio('ex1')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 2: Multiple Choice (Zustand) -->
+    <div class="exercise-card" id="ex2">
+        <div class="exercise-header">
+            <h3>Aufgabe 2: Der Zustand</h3>
+            <p>Der Teppich (ковер) befindet sich auf dem Boden. Welches Verb passt?</p>
+        </div>
+        <div class="task-content radio-group">
+            <label class="radio-label"><input type="radio" name="ex2" value="wrong"> Ковер стоит на полу.</label>
+            <label class="radio-label"><input type="radio" name="ex2" value="correct"> Ковер лежит на полу.</label>
+            <label class="radio-label"><input type="radio" name="ex2" value="wrong"> Ковер висит на полу.</label>
+        </div>
+        <div class="btn-group">
+            <button class="btn-check" onclick="checkRadio('ex2')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetRadio('ex2')">Zurücksetzen</button>
+            <button class="btn-solution" onclick="showRadio('ex2')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 3: Drag & Drop Kategorisierung -->
+    <div class="exercise-card" id="ex3">
+        <div class="exercise-header">
+            <h3>Aufgabe 3: Sortieren</h3>
+            <p>Ordne die Gegenstände der typischen Position zu.</p>
+        </div>
+        <div class="task-content">
+            <div class="draggable-container" id="ex3-source">
+                <div class="draggable-item" draggable="true" data-cat="stood">Ваза (Vase)</div>
+                <div class="draggable-item" draggable="true" data-cat="lay">Книга (Buch)</div>
+                <div class="draggable-item" draggable="true" data-cat="hung">Картина (Bild)</div>
+                <div class="draggable-item" draggable="true" data-cat="stood">Человек (Mensch)</div>
+                <div class="draggable-item" draggable="true" data-cat="lay">Паспорт (Pass)</div>
+            </div>
+            <div class="drop-area">
+                <div class="dropzone" data-accept="stood"><h4>стоит</h4></div>
+                <div class="dropzone" data-accept="lay"><h4>лежит</h4></div>
+                <div class="dropzone" data-accept="hung"><h4>висит</h4></div>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button class="btn-check" onclick="checkDragDrop('ex3')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetDragDrop('ex3')">Zurücksetzen</button>
+            <button class="btn-solution" onclick="showDragDrop('ex3')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 4: Dropdown (Aspekte) - GEÄNDERT -->
+    <div class="exercise-card" id="ex4">
+        <div class="exercise-header">
+            <h3>Aufgabe 4: Prozess vs. Resultat</h3>
+            <p>Wähle das richtige Verb aus dem Menü.</p>
+        </div>
+        <div class="task-content">
+            <p>1. Jetzt gerade (stellen): <br>
+                <select data-correct="ставлю">
+                    <option value="">-- bitte wählen --</option>
+                    <option value="ставлю">я ставлю</option>
+                    <option value="поставил">я поставил</option>
+                </select> тарелку на стол.
+            </p>
+            <p>2. Gestern (habe gestellt - Resultat): <br>
+                <select data-correct="поставил">
+                    <option value="">-- bitte wählen --</option>
+                    <option value="ставлю">я ставлю</option>
+                    <option value="поставил">я поставил</option>
+                </select> лампу на тумбочку.
+            </p>
+        </div>
+        <div class="btn-group">
+            <button class="btn-check" onclick="checkInputs('ex4')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetInputs('ex4')">Zurücksetzen</button>
+            <button class="btn-solution" onclick="showInputs('ex4')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 5: Kontext (Teller) -->
+    <div class="exercise-card" id="ex5">
+        <div class="exercise-header">
+            <h3>Aufgabe 5: Kontext ist alles</h3>
+            <p>Wähle das richtige Verb für den Teller (тарелка).</p>
+        </div>
+        <div class="task-content">
+            <p>Der Teller ist im Abtropfgestell (senkrecht): Тарелка <select data-correct="стоит"><option value="">...</option><option value="стоит">стоит</option><option value="лежит">лежит</option></select>.</p>
+            <p>Der Teller ist auf dem Tisch (flach): Тарелка <select data-correct="лежит"><option value="">...</option><option value="стоит">стоит</option><option value="лежит">лежит</option></select>.</p>
+        </div>
+        <div class="btn-group">
+            <button class="btn-check" onclick="checkInputs('ex5')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetInputs('ex5')">Zurücksetzen</button>
+            <button class="btn-solution" onclick="showInputs('ex5')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 6: Paare finden -->
+    <div class="exercise-card" id="ex6">
+        <div class="exercise-header">
+            <h3>Aufgabe 6: Ursache und Wirkung</h3>
+            <p>Wenn ich eine Aktion ausführe, was ist das Ergebnis?</p>
+        </div>
+        <div class="task-content">
+            <p>Я вешаю пальто. -> Пальто <select data-correct="висит"><option value="">...</option><option value="стоит">стоит</option><option value="висит">висит</option><option value="лежит">лежит</option></select>.</p>
+            <p>Я кладу ручку. -> Ручка <select data-correct="лежит"><option value="">...</option><option value="стоит">стоит</option><option value="висит">висит</option><option value="лежит">лежит</option></select>.</p>
+            <p>Я ставлю вазу. -> Ваза <select data-correct="стоит"><option value="">...</option><option value="стоит">стоит</option><option value="висит">висит</option><option value="лежит">лежит</option></select>.</p>
+        </div>
+        <div class="btn-group">
+            <button class="btn-check" onclick="checkInputs('ex6')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetInputs('ex6')">Zurücksetzen</button>
+            <button class="btn-solution" onclick="showInputs('ex6')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 7: Wahr oder Falsch -->
+    <div class="exercise-card" id="ex7">
+        <div class="exercise-header">
+            <h3>Aufgabe 7: Logik-Check</h3>
+            <p>Ist der Satz korrekt? <em>"Книга стоит на столе."</em></p>
+        </div>
+        <div class="task-content radio-group">
+            <label class="radio-label"><input type="radio" name="ex7" value="correct"> Richtig (Das ist möglich, z.B. im Regal)</label>
+            <label class="radio-label"><input type="radio" name="ex7" value="wrong"> Falsch (Ein Buch kann niemals stehen)</label>
+        </div>
+        <div class="btn-group">
+            <button class="btn-check" onclick="checkRadio('ex7')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetRadio('ex7')">Zurücksetzen</button>
+            <button class="btn-solution" onclick="showRadio('ex7')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 8: Satzbau - KORRIGIERT (ECHTES DRAG & DROP) -->
+    <div class="exercise-card" id="ex8">
+        <div class="exercise-header">
+            <h3>Aufgabe 8: Satzbau</h3>
+            <p>Ziehe die Wörter in die richtige Reihenfolge in den unteren Kasten.</p>
+        </div>
+        <div class="task-content">
+            <div class="draggable-container" id="ex8-source">
+                <div class="draggable-item" draggable="true">диван</div>
+                <div class="draggable-item" draggable="true">Мы</div>
+                <div class="draggable-item" draggable="true">ставим</div>
+                <div class="draggable-item" draggable="true">комнату</div>
+                <div class="draggable-item" draggable="true">в</div>
+            </div>
+            
+            <div class="sentence-dropzone" id="ex8-target">
+                <!-- Hier landen die Wörter -->
+            </div>
+            
+            <p><small>(Satz: Wir stellen das Sofa in das Zimmer)</small></p>
+        </div>
+        <div class="btn-group">
+            <button class="btn-check" onclick="checkSentenceOrder('ex8', ['Мы', 'ставим', 'диван', 'в', 'комнату'])">Überprüfen</button>
+            <button class="btn-reset" onclick="resetSentenceOrder('ex8')">Zurücksetzen</button>
+            <button class="btn-solution" onclick="showSentenceOrder('ex8', ['Мы', 'ставим', 'диван', 'в', 'комнату'])">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 9: Fälle (Kasus) - GEÄNDERT -->
+    <div class="exercise-card" id="ex9">
+        <div class="exercise-header">
+            <h3>Aufgabe 9: Fälle beachten</h3>
+            <p>Wähle die richtige Form (Akkusativ oder Präpositiv).</p>
+        </div>
+        <div class="task-content">
+            <p>Я ставлю стакан на (Akkusativ) <br>
+                <select data-correct="стол">
+                    <option value="">-- bitte wählen --</option>
+                    <option value="стол">стол</option>
+                    <option value="столе">столе</option>
+                    <option value="столу">столу</option>
+                </select>.
+            </p>
+            <p>Стакан стоит на (Präpositiv) <br>
+                <select data-correct="столе">
+                    <option value="">-- bitte wählen --</option>
+                    <option value="стол">стол</option>
+                    <option value="столе">столе</option>
+                    <option value="столу">столу</option>
+                </select>.
+            </p>
+        </div>
+        <div class="btn-group">
+            <button class="btn-check" onclick="checkInputs('ex9')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetInputs('ex9')">Zurücksetzen</button>
+            <button class="btn-solution" onclick="showInputs('ex9')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 10: Der Laptop -->
+    <div class="exercise-card" id="ex10">
+        <div class="exercise-header">
+            <h3>Aufgabe 10: Das Laptop-Dilemma</h3>
+            <p>Entscheide basierend auf dem Zustand des Laptops.</p>
+        </div>
+        <div class="task-content">
+            <p>Der Laptop ist zugeklappt (flach). Он <select data-correct="лежит"><option value="">...</option><option value="стоит">стоит</option><option value="лежит">лежит</option></select>.</p>
+            <p>Der Laptop ist aufgeklappt (offen). Он <select data-correct="стоит"><option value="">...</option><option value="стоит">стоит</option><option value="лежит">лежит</option></select>.</p>
+        </div>
+        <div class="btn-group">
+            <button class="btn-check" onclick="checkInputs('ex10')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetInputs('ex10')">Zurücksetzen</button>
+            <button class="btn-solution" onclick="showInputs('ex10')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 11: Deutsch-Russisch Matching -->
+    <div class="exercise-card" id="ex11">
+        <div class="exercise-header">
+            <h3>Aufgabe 11: Übersetzung</h3>
+            <p>Ziehe das russische Wort zur deutschen Bedeutung.</p>
+        </div>
+        <div class="task-content">
+            <div class="draggable-container" id="ex11-source">
+                <div class="draggable-item" draggable="true" data-cat="legen">положить</div>
+                <div class="draggable-item" draggable="true" data-cat="haengen">повесить</div>
+                <div class="draggable-item" draggable="true" data-cat="stellen">поставить</div>
+            </div>
+            <div class="drop-area">
+                <div class="dropzone" data-accept="stellen"><h4>stellen</h4></div>
+                <div class="dropzone" data-accept="legen"><h4>legen</h4></div>
+                <div class="dropzone" data-accept="haengen"><h4>aufhängen</h4></div>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button class="btn-check" onclick="checkDragDrop('ex11')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetDragDrop('ex11')">Zurücksetzen</button>
+            <button class="btn-solution" onclick="showDragDrop('ex11')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 12: Text ergänzen - GEÄNDERT -->
+    <div class="exercise-card" id="ex12">
+        <div class="exercise-header">
+            <h3>Aufgabe 12: Text komplettieren</h3>
+            <p>Fülle die Lücken im Text durch Auswählen.</p>
+        </div>
+        <div class="task-content">
+            <p>
+                Я купил новую картину. Я решил (aufhängen) 
+                <select data-correct="повесить">
+                    <option value="">...</option>
+                    <option value="вешать">вешать</option>
+                    <option value="повесить">повесить</option>
+                </select> её на стену.
+                Теперь картина (hängt) 
+                <select data-correct="висит">
+                    <option value="">...</option>
+                    <option value="висит">висит</option>
+                    <option value="вешает">вешает</option>
+                </select> там.
+                На столе (steht) 
+                <select data-correct="стоит">
+                    <option value="">...</option>
+                    <option value="стоит">стоит</option>
+                    <option value="ставит">ставит</option>
+                </select> лампа, а рядом (liegt) 
+                <select data-correct="лежит">
+                    <option value="">...</option>
+                    <option value="лежит">лежит</option>
+                    <option value="кладет">кладет</option>
+                </select> книга.
+            </p>
+        </div>
+        <div class="btn-group">
+            <button class="btn-check" onclick="checkInputs('ex12')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetInputs('ex12')">Zurücksetzen</button>
+            <button class="btn-solution" onclick="showInputs('ex12')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    /* --- Hilfsfunktionen --- */
+    function normalize(str) {
+        return str.trim().toLowerCase();
+    }
+
+    /* --- Logik für Text Inputs & Selects --- */
+    function checkInputs(id) {
+        const container = document.getElementById(id);
+        const inputs = container.querySelectorAll('select'); // Geändert auf select
+        
+        inputs.forEach(input => {
+            const userAnswer = normalize(input.value);
+            const correctAnswer = normalize(input.getAttribute('data-correct'));
+            
+            if (userAnswer === correctAnswer) {
+                input.classList.add('correct');
+                input.classList.remove('incorrect');
+            } else {
+                input.classList.add('incorrect');
+                input.classList.remove('correct');
+            }
+        });
+    }
+
+    function resetInputs(id) {
+        const container = document.getElementById(id);
+        const inputs = container.querySelectorAll('select');
+        inputs.forEach(input => {
+            input.value = '';
+            input.classList.remove('correct', 'incorrect');
+        });
+    }
+
+    function showInputs(id) {
+        const container = document.getElementById(id);
+        const inputs = container.querySelectorAll('select');
+        inputs.forEach(input => {
+            input.value = input.getAttribute('data-correct');
+            input.classList.remove('correct', 'incorrect');
+        });
+    }
+
+    /* --- Logik für Radio Buttons --- */
+    function checkRadio(id) {
+        const container = document.getElementById(id);
+        const selected = container.querySelector('input[type="radio"]:checked');
+        const labels = container.querySelectorAll('.radio-label');
+        
+        labels.forEach(l => l.style.color = 'inherit');
+
+        if (!selected) return;
+
+        if (selected.value === 'correct') {
+            selected.parentElement.style.color = 'var(--success-color)';
+            selected.parentElement.style.fontWeight = 'bold';
+        } else {
+            selected.parentElement.style.color = 'var(--error-color)';
+        }
+    }
+
+    function resetRadio(id) {
+        const container = document.getElementById(id);
+        const inputs = container.querySelectorAll('input[type="radio"]');
+        const labels = container.querySelectorAll('.radio-label');
+        inputs.forEach(i => i.checked = false);
+        labels.forEach(l => {
+            l.style.color = 'inherit';
+            l.style.fontWeight = 'normal';
+        });
+    }
+
+    function showRadio(id) {
+        const container = document.getElementById(id);
+        const correctInput = container.querySelector('input[value="correct"]');
+        if (correctInput) {
+            correctInput.checked = true;
+            const labels = container.querySelectorAll('.radio-label');
+            labels.forEach(l => {
+                l.style.color = 'inherit';
+                l.style.fontWeight = 'normal';
+            });
+        }
+    }
+
+    /* --- Drag & Drop Logik Allgemein --- */
+    let draggedItem = null;
+
+    // Event Listener für Draggables (Global)
+    document.addEventListener('dragstart', function(e) {
+        if (e.target.classList.contains('draggable-item')) {
+            draggedItem = e.target;
+            e.dataTransfer.effectAllowed = 'move';
+            e.target.style.opacity = '0.5';
+        }
+    });
+
+    document.addEventListener('dragend', function(e) {
+        if (e.target.classList.contains('draggable-item')) {
+            draggedItem = null;
+            e.target.style.opacity = '1';
+        }
+    });
+
+    // Event Listener für Dropzones (Kategorien + Satzbau)
+    const allDropzones = document.querySelectorAll('.dropzone, .sentence-dropzone, .draggable-container');
+
+    allDropzones.forEach(zone => {
+        zone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            this.style.background = '#e1e1e1';
+        });
+
+        zone.addEventListener('dragleave', function() {
+            // Style zurücksetzen (je nach Typ etwas anders)
+            if(this.classList.contains('sentence-dropzone')) {
+                this.style.background = '#eef7fb';
+            } else if (this.classList.contains('draggable-container')) {
+                this.style.background = '#f0f0f0';
+            } else {
+                this.style.background = '#fafafa';
+            }
+        });
+
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            
+            // Background Reset
+            if(this.classList.contains('sentence-dropzone')) {
+                this.style.background = '#eef7fb';
+            } else if (this.classList.contains('draggable-container')) {
+                this.style.background = '#f0f0f0';
+            } else {
+                this.style.background = '#fafafa';
+            }
+
+            if (draggedItem) {
+                // Sicherheitscheck: Nur innerhalb der gleichen Aufgabe droppen
+                const taskContainer = this.closest('.exercise-card');
+                const itemContainer = draggedItem.closest('.exercise-card');
+
+                if (taskContainer === itemContainer) {
+                    this.appendChild(draggedItem);
+                }
+            }
+        });
+    });
+
+
+    /* --- Logik für Aufgabe 8 (Satzbau) --- */
+    function checkSentenceOrder(id, correctArray) {
+        const container = document.getElementById(id);
+        const dropzone = container.querySelector('.sentence-dropzone');
+        const items = dropzone.querySelectorAll('.draggable-item');
+        
+        // Aktuellen Text aus den Elementen holen
+        const userWords = Array.from(items).map(item => item.innerText.trim());
+        const userSentence = userWords.join(' ');
+        const correctSentence = correctArray.join(' ');
+
+        if (userSentence === correctSentence) {
+            dropzone.classList.add('correct');
+            dropzone.classList.remove('incorrect');
+        } else {
+            dropzone.classList.add('incorrect');
+            dropzone.classList.remove('correct');
+        }
+    }
+
+    function resetSentenceOrder(id) {
+        const container = document.getElementById(id);
+        const source = container.querySelector('.draggable-container');
+        const dropzone = container.querySelector('.sentence-dropzone');
+        const items = container.querySelectorAll('.draggable-item');
+
+        // Alles zurück in den Source Container
+        // Optional: Mischen könnte man hier auch, aber einfaches Zurücklegen reicht
+        items.forEach(item => source.appendChild(item));
+
+        dropzone.classList.remove('correct', 'incorrect');
+    }
+
+    function showSentenceOrder(id, correctArray) {
+        const container = document.getElementById(id);
+        const source = container.querySelector('.draggable-container');
+        const dropzone = container.querySelector('.sentence-dropzone');
+        const allItems = Array.from(container.querySelectorAll('.draggable-item'));
+
+        // Reset Styles
+        dropzone.classList.remove('correct', 'incorrect');
+
+        // Elemente in der richtigen Reihenfolge finden und verschieben
+        correctArray.forEach(word => {
+            const item = allItems.find(el => el.innerText.trim() === word);
+            if (item) {
+                dropzone.appendChild(item);
+            }
+        });
+    }
+
+    /* --- Logik für Kategorien-DragDrop (Aufgabe 3 & 11) --- */
+    function checkDragDrop(id) {
+        const container = document.getElementById(id);
+        const zones = container.querySelectorAll('.dropzone');
+        
+        zones.forEach(zone => {
+            const accept = zone.getAttribute('data-accept');
+            const items = zone.querySelectorAll('.draggable-item');
+            
+            zone.classList.remove('correct', 'incorrect');
+
+            if (items.length === 0) return;
+
+            let allCorrect = true;
+            items.forEach(item => {
+                if (item.getAttribute('data-cat') !== accept) {
+                    allCorrect = false;
+                }
+            });
+
+            if (allCorrect) {
+                zone.classList.add('correct');
+            } else {
+                zone.classList.add('incorrect');
+            }
+        });
+    }
+
+    function resetDragDrop(id) {
+        const container = document.getElementById(id);
+        const source = container.querySelector('.draggable-container');
+        const items = container.querySelectorAll('.draggable-item');
+        const zones = container.querySelectorAll('.dropzone');
+
+        items.forEach(item => source.appendChild(item));
+        zones.forEach(zone => zone.classList.remove('correct', 'incorrect'));
+    }
+
+    function showDragDrop(id) {
+        const container = document.getElementById(id);
+        const items = container.querySelectorAll('.draggable-item');
+        const zones = container.querySelectorAll('.dropzone');
+
+        zones.forEach(zone => zone.classList.remove('correct', 'incorrect'));
+
+        items.forEach(item => {
+            const correctCat = item.getAttribute('data-cat');
+            const targetZone = Array.from(zones).find(z => z.getAttribute('data-accept') === correctCat);
+            if (targetZone) {
+                targetZone.appendChild(item);
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
