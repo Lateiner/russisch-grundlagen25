@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kasus-Training: Die richtige Endung</title>
+    
+    <style>
+        :root {
+            --primary: #3498db;  /* Blau für Aktion */
+            --secondary: #27ae60; /* Grün für Zustand */
+            --error: #e74c3c;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .instruction {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #7f8c8d;
+        }
+
+        /* --- Layout für die Satz-Paare --- */
+        .pair-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .pair-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+
+        .pair-header {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            font-weight: bold;
+            color: #555;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .noun-tag {
+            background: #e0e0e0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+
+        .pair-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        /* --- Linke und Rechte Seite --- */
+        .case-box {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .case-box.action {
+            border-left: 5px solid var(--primary);
+            background: rgba(52, 152, 219, 0.05);
+        }
+
+        .case-box.state {
+            border-left: 5px solid var(--secondary);
+            background: rgba(39, 174, 96, 0.05);
+        }
+
+        .label-hint {
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .label-action { color: var(--primary); }
+        .label-state { color: var(--secondary); }
+
+        .sentence {
+            font-size: 1.1em;
+        }
+
+        .translation {
+            display: block;
+            font-size: 0.85em;
+            color: #7f8c8d;
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        /* --- Dropdowns --- */
+        select {
+            padding: 5px 10px;
+            border: 2px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            margin: 0 3px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #555;
+        }
+
+        select.correct {
+            border-color: var(--secondary);
+            background-color: #d5f5e3;
+            color: #155724;
+        }
+
+        select.incorrect {
+            border-color: var(--error);
+            background-color: #fadbd8;
+            color: #721c24;
+        }
+
+        /* --- Buttons --- */
+        .btn-container {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+        }
+        
+        button:hover { opacity: 0.9; }
+        .btn-check { background-color: #34495e; }
+        .btn-reset { background-color: #95a5a6; }
+        .btn-solve { background-color: #f39c12; }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .pair-content {
+                grid-template-columns: 1fr; /* Untereinander auf Mobile */
+            }
+            .case-box {
+                border-bottom: 1px solid #eee;
+                border-left-width: 5px; /* Behalte den farbigen Rand bei */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Kasus-Training: Die richtige Endung</h2>
+    <p class="instruction">
+        Ergänze die Endungen der Nomen.<br>
+        Achte auf die Frage: <strong>Wohin?</strong> (Akkusativ) oder <strong>Wo?</strong> (Präpositiv).
+    </p>
+
+    <div class="pair-container">
+
+        <!-- Paar 1: Tisch (m) -->
+        <div class="pair-card">
+            <div class="pair-header">
+                <span>Nomen:</span> <span class="noun-tag">Стол (Tisch)</span>
+            </div>
+            <div class="pair-content">
+                <!-- Aktion -->
+                <div class="case-box action">
+                    <div class="label-hint label-action">Wohin? (Akkusativ)</div>
+                    <div class="sentence">
+                        Я ставлю стакан на 
+                        <select data-correct="стол">
+                            <option value="">...</option>
+                            <option value="стол">стол</option>
+                            <option value="столе">столе</option>
+                            <option value="столу">столу</option>
+                        </select>.
+                    </div>
+                    <span class="translation">Ich stelle das Glas auf den Tisch.</span>
+                </div>
+                <!-- Zustand -->
+                <div class="case-box state">
+                    <div class="label-hint label-state">Wo? (Präpositiv)</div>
+                    <div class="sentence">
+                        Стакан стоит на 
+                        <select data-correct="столе">
+                            <option value="">...</option>
+                            <option value="стол">стол</option>
+                            <option value="столе">столе</option>
+                            <option value="стола">стола</option>
+                        </select>.
+                    </div>
+                    <span class="translation">Das Glas steht auf dem Tisch.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paar 2: Tasche (f) -->
+        <div class="pair-card">
+            <div class="pair-header">
+                <span>Nomen:</span> <span class="noun-tag">Сумка (Tasche)</span>
+            </div>
+            <div class="pair-content">
+                <!-- Aktion -->
+                <div class="case-box action">
+                    <div class="label-hint label-action">Wohin? (Akkusativ)</div>
+                    <div class="sentence">
+                        Я кладу книгу в 
+                        <select data-correct="сумку">
+                            <option value="">...</option>
+                            <option value="сумка">сумка</option>
+                            <option value="сумку">сумку</option>
+                            <option value="сумке">сумке</option>
+                        </select>.
+                    </div>
+                    <span class="translation">Ich lege das Buch in die Tasche.</span>
+                </div>
+                <!-- Zustand -->
+                <div class="case-box state">
+                    <div class="label-hint label-state">Wo? (Präpositiv)</div>
+                    <div class="sentence">
+                        Книга лежит в 
+                        <select data-correct="сумке">
+                            <option value="">...</option>
+                            <option value="сумку">сумку</option>
+                            <option value="сумке">сумке</option>
+                            <option value="сумки">сумки</option>
+                        </select>.
+                    </div>
+                    <span class="translation">Das Buch liegt in der Tasche.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paar 3: Wand (f) -->
+        <div class="pair-card">
+            <div class="pair-header">
+                <span>Nomen:</span> <span class="noun-tag">Стена (Wand)</span>
+            </div>
+            <div class="pair-content">
+                <!-- Aktion -->
+                <div class="case-box action">
+                    <div class="label-hint label-action">Wohin? (Akkusativ)</div>
+                    <div class="sentence">
+                        Мы вешаем картину на 
+                        <select data-correct="стену">
+                            <option value="">...</option>
+                            <option value="стена">стена</option>
+                            <option value="стену">стену</option>
+                            <option value="стене">стене</option>
+                        </select>.
+                    </div>
+                    <span class="translation">Wir hängen das Bild an die Wand.</span>
+                </div>
+                <!-- Zustand -->
+                <div class="case-box state">
+                    <div class="label-hint label-state">Wo? (Präpositiv)</div>
+                    <div class="sentence">
+                        Картина висит на 
+                        <select data-correct="стене">
+                            <option value="">...</option>
+                            <option value="стену">стену</option>
+                            <option value="стене">стене</option>
+                            <option value="стены">стены</option>
+                        </select>.
+                    </div>
+                    <span class="translation">Das Bild hängt an der Wand.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paar 4: Schrank (m) - Ausnahme -->
+        <div class="pair-card">
+            <div class="pair-header">
+                <span>Nomen:</span> <span class="noun-tag">Шкаф (Schrank)</span>
+            </div>
+            <div class="pair-content">
+                <!-- Aktion -->
+                <div class="case-box action">
+                    <div class="label-hint label-action">Wohin? (Akkusativ)</div>
+                    <div class="sentence">
+                        Я вешаю пальто в 
+                        <select data-correct="шкаф">
+                            <option value="">...</option>
+                            <option value="шкаф">шкаф</option>
+                            <option value="шкафу">шкафу</option>
+                            <option value="шкафе">шкафе</option>
+                        </select>.
+                    </div>
+                    <span class="translation">Ich hänge den Mantel in den Schrank.</span>
+                </div>
+                <!-- Zustand -->
+                <div class="case-box state">
+                    <div class="label-hint label-state">Wo? (Präpositiv - Ausnahme!)</div>
+                    <div class="sentence">
+                        Пальто висит в 
+                        <select data-correct="шкафу">
+                            <option value="">...</option>
+                            <option value="шкаф">шкаф</option>
+                            <option value="шкафе">шкафе</option>
+                            <option value="шкафу">шкафу</option>
+                        </select>.
+                    </div>
+                    <span class="translation">Der Mantel hängt im Schrank.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paar 5: Regal (f) -->
+        <div class="pair-card">
+            <div class="pair-header">
+                <span>Nomen:</span> <span class="noun-tag">Полка (Regal)</span>
+            </div>
+            <div class="pair-content">
+                <!-- Aktion -->
+                <div class="case-box action">
+                    <div class="label-hint label-action">Wohin? (Akkusativ)</div>
+                    <div class="sentence">
+                        Он ставит книгу на 
+                        <select data-correct="полку">
+                            <option value="">...</option>
+                            <option value="полка">полка</option>
+                            <option value="полку">полку</option>
+                            <option value="полке">полке</option>
+                        </select>.
+                    </div>
+                    <span class="translation">Er stellt das Buch ins Regal.</span>
+                </div>
+                <!-- Zustand -->
+                <div class="case-box state">
+                    <div class="label-hint label-state">Wo? (Präpositiv)</div>
+                    <div class="sentence">
+                        Книга стоит на 
+                        <select data-correct="полке">
+                            <option value="">...</option>
+                            <option value="полку">полку</option>
+                            <option value="полке">полке</option>
+                            <option value="полки">полки</option>
+                        </select>.
+                    </div>
+                    <span class="translation">Das Buch steht im Regal.</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="btn-container">
+        <button class="btn-check" onclick="checkCaseTask()">Überprüfen</button>
+        <button class="btn-reset" onclick="resetCaseTask()">Zurücksetzen</button>
+        <button class="btn-solve" onclick="solveCaseTask()">Lösung anzeigen</button>
+    </div>
+</div>
+
+<script>
+    function checkCaseTask() {
+        const selects = document.querySelectorAll('select');
+        
+        selects.forEach(select => {
+            const userAnswer = select.value;
+            const correctAnswer = select.getAttribute('data-correct');
+
+            // Reset classes
+            select.classList.remove('correct', 'incorrect');
+
+            if (userAnswer === "") return; // Keine Auswahl getroffen
+
+            if (userAnswer === correctAnswer) {
+                select.classList.add('correct');
+            } else {
+                select.classList.add('incorrect');
+            }
+        });
+    }
+
+    function resetCaseTask() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.value = "";
+            select.classList.remove('correct', 'incorrect');
+        });
+    }
+
+    function solveCaseTask() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.value = select.getAttribute('data-correct');
+            select.classList.remove('incorrect');
+            select.classList.add('correct');
+        });
+    }
+</script>
+
+</body>
+</html>
