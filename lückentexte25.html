@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammatik: Aktion vs. Zustand</title>
+    
+    <style>
+        :root {
+            --primary: #3498db;
+            --success: #2ecc71;
+            --error: #e74c3c;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --muted: #7f8c8d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .instruction {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--muted);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* --- Grid für die Sätze --- */
+        .sentences-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .sentence-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 5px solid var(--primary); /* Markiert als Aufgabe */
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .sentence-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .german-text {
+            color: var(--muted);
+            font-size: 0.9em;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+
+        .russian-text {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        /* --- Dropdown Styling --- */
+        select {
+            padding: 8px 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            font-size: 1rem;
+            cursor: pointer;
+            outline: none;
+            margin: 0 5px;
+            min-width: 120px;
+            max-width: 100%;
+        }
+
+        select:focus {
+            border-color: var(--primary);
+            background-color: #fff;
+        }
+
+        /* Feedback Farben */
+        select.correct {
+            border-color: var(--success);
+            background-color: #d5f5e3;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        select.incorrect {
+            border-color: var(--error);
+            background-color: #fadbd8;
+            color: #721c24;
+        }
+
+        /* --- Buttons --- */
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
+        
+        .btn-check { background-color: var(--primary); }
+        .btn-reset { background-color: #7f8c8d; }
+        .btn-solve { background-color: #f39c12; }
+
+        /* Mobile Anpassung */
+        @media (max-width: 500px) {
+            select {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Grammatik: Aktion vs. Zustand</h2>
+    <p class="instruction">
+        Wähle das richtige Verb. <br>
+        Achte auf den Unterschied: Mache ich es gerade (Aktion/Akkusativ) oder ist es schon dort (Zustand/Präpositiv)?
+    </p>
+
+    <div class="sentences-grid">
+
+        <!-- Paar 1: Vase (stellen vs stehen) -->
+        <div class="sentence-card">
+            <div class="german-text">Ich stelle die Vase auf den Tisch. (Aktion)</div>
+            <div class="russian-text">
+                Я 
+                <select data-correct="ставлю">
+                    <option value="">...</option>
+                    <option value="ставлю">ставлю</option>
+                    <option value="стою">стою</option>
+                    <option value="стоит">стоит</option>
+                </select> 
+                вазу на стол.
+            </div>
+        </div>
+
+        <div class="sentence-card">
+            <div class="german-text">Die Vase steht auf dem Tisch. (Zustand)</div>
+            <div class="russian-text">
+                Ваза 
+                <select data-correct="стоит">
+                    <option value="">...</option>
+                    <option value="ставит">ставит</option>
+                    <option value="стоит">стоит</option>
+                    <option value="стоят">стоят</option>
+                </select> 
+                на столе.
+            </div>
+        </div>
+
+        <!-- Paar 2: Teppich (legen vs liegen) -->
+        <div class="sentence-card">
+            <div class="german-text">Wir legen den Teppich auf den Boden. (Aktion)</div>
+            <div class="russian-text">
+                Мы 
+                <select data-correct="кладём">
+                    <option value="">...</option>
+                    <option value="лежим">лежим</option>
+                    <option value="кладём">кладём</option>
+                    <option value="лежит">лежит</option>
+                </select> 
+                ковёр на пол.
+            </div>
+        </div>
+
+        <div class="sentence-card">
+            <div class="german-text">Der Teppich liegt auf dem Boden. (Zustand)</div>
+            <div class="russian-text">
+                Ковёр 
+                <select data-correct="лежит">
+                    <option value="">...</option>
+                    <option value="кладёт">кладёт</option>
+                    <option value="лежит">лежит</option>
+                    <option value="лежат">лежат</option>
+                </select> 
+                на полу.
+            </div>
+        </div>
+
+        <!-- Paar 3: Bild (hängen aktiv vs hängen zustand) -->
+        <div class="sentence-card">
+            <div class="german-text">Papa hängt das Bild an die Wand. (Aktion)</div>
+            <div class="russian-text">
+                Папа 
+                <select data-correct="вешает">
+                    <option value="">...</option>
+                    <option value="висит">висит</option>
+                    <option value="вешает">вешает</option>
+                    <option value="висят">висят</option>
+                </select> 
+                картину на стену.
+            </div>
+        </div>
+
+        <div class="sentence-card">
+            <div class="german-text">Das Bild hängt an der Wand. (Zustand)</div>
+            <div class="russian-text">
+                Картина 
+                <select data-correct="висит">
+                    <option value="">...</option>
+                    <option value="вешает">вешает</option>
+                    <option value="висит">висит</option>
+                    <option value="висят">висят</option>
+                </select> 
+                на стене.
+            </div>
+        </div>
+
+        <!-- Gemischte Beispiele -->
+        <div class="sentence-card">
+            <div class="german-text">Warum legst du das Buch in die Tasche? (Aktion)</div>
+            <div class="russian-text">
+                Почему ты 
+                <select data-correct="кладёшь">
+                    <option value="">...</option>
+                    <option value="лежишь">лежишь</option>
+                    <option value="кладёшь">кладёшь</option>
+                    <option value="ставишь">ставишь</option>
+                </select> 
+                книгу в сумку?
+            </div>
+        </div>
+
+        <div class="sentence-card">
+            <div class="german-text">Wo liegen meine Schlüssel? (Zustand - Plural)</div>
+            <div class="russian-text">
+                Где 
+                <select data-correct="лежат">
+                    <option value="">...</option>
+                    <option value="кладут">кладут</option>
+                    <option value="лежит">лежит</option>
+                    <option value="лежат">лежат</option>
+                </select> 
+                мои ключи?
+            </div>
+        </div>
+
+        <div class="sentence-card">
+            <div class="german-text">Die Lampe steht in der Ecke. (Zustand)</div>
+            <div class="russian-text">
+                Лампа 
+                <select data-correct="стоит">
+                    <option value="">...</option>
+                    <option value="ставит">ставит</option>
+                    <option value="стоит">стоит</option>
+                    <option value="лежит">лежит</option>
+                </select> 
+                в углу.
+            </div>
+        </div>
+
+        <div class="sentence-card">
+            <div class="german-text">Ich hänge den Mantel in den Schrank. (Aktion)</div>
+            <div class="russian-text">
+                Я 
+                <select data-correct="вешаю">
+                    <option value="">...</option>
+                    <option value="вишу">вишу</option>
+                    <option value="вешаю">вешаю</option>
+                    <option value="ставлю">ставлю</option>
+                </select> 
+                пальто в шкаф.
+            </div>
+        </div>
+
+    </div>
+
+    <div class="btn-container">
+        <button class="btn-check" onclick="checkGrammarTask()">Überprüfen</button>
+        <button class="btn-reset" onclick="resetGrammarTask()">Zurücksetzen</button>
+        <button class="btn-solve" onclick="solveGrammarTask()">Lösung anzeigen</button>
+    </div>
+</div>
+
+<script>
+    function checkGrammarTask() {
+        const selects = document.querySelectorAll('select');
+        
+        selects.forEach(select => {
+            const userAnswer = select.value;
+            const correctAnswer = select.getAttribute('data-correct');
+
+            // Reset classes first
+            select.classList.remove('correct', 'incorrect');
+
+            if (userAnswer === "") return; // Keine Auswahl ignoriert
+
+            if (userAnswer === correctAnswer) {
+                select.classList.add('correct');
+            } else {
+                select.classList.add('incorrect');
+            }
+        });
+    }
+
+    function resetGrammarTask() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.value = "";
+            select.classList.remove('correct', 'incorrect');
+        });
+    }
+
+    function solveGrammarTask() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.value = select.getAttribute('data-correct');
+            select.classList.remove('incorrect');
+            select.classList.add('correct');
+        });
+    }
+</script>
+
+</body>
+</html>
