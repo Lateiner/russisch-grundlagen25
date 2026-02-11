@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed-Quiz: Steht oder Liegt?</title>
+    
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --accent: #f1c40f;
+            --correct: #2ecc71;
+            --wrong: #e74c3c;
+            --bg: #fdf2e9;
+            --card-bg: #ffffff;
+            --text: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden; /* Kein Scrollen während des Spiels */
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 80vh; /* Nimmt fast den ganzen Schirm ein */
+            max-height: 700px;
+        }
+
+        /* --- Header & Score --- */
+        .header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .score-badge {
+            background: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+        }
+
+        /* --- Timer Bar --- */
+        .timer-container {
+            width: 100%;
+            height: 10px;
+            background: #eee;
+        }
+
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background: var(--accent);
+            transform-origin: left;
+            /* Animation wird per JS gesteuert */
+        }
+
+        /* --- Game Area --- */
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .question-icon {
+            font-size: 5rem;
+            margin-bottom: 10px;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .question-word {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .question-translation {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+
+        /* --- Buttons --- */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            margin-top: auto; /* Buttons nach unten drücken */
+        }
+
+        .game-btn {
+            border: none;
+            border-radius: 15px;
+            padding: 25px 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.1);
+            text-transform: uppercase;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-stand {
+            background-color: #3498db;
+            box-shadow: 0 5px 0 #2980b9;
+        }
+        
+        .btn-lie {
+            background-color: #9b59b6;
+            box-shadow: 0 5px 0 #8e44ad;
+        }
+
+        .game-btn:active {
+            transform: translateY(5px);
+            box-shadow: none;
+        }
+
+        /* Feedback Status */
+        .game-btn.correct { background-color: var(--correct) !important; box-shadow: 0 5px 0 #27ae60 !important; }
+        .game-btn.wrong { background-color: var(--wrong) !important; box-shadow: 0 5px 0 #c0392b !important; opacity: 0.5; }
+
+        /* --- Overlays (Start / End) --- */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .overlay h1 { color: var(--primary); font-size: 2.5rem; margin-bottom: 10px; }
+        .overlay p { color: #555; font-size: 1.2rem; margin-bottom: 30px; max-width: 400px; }
+        
+        .cta-btn {
+            background: var(--accent);
+            color: #333;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(241, 196, 15, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .hidden { display: none; }
+
+        @keyframes popIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Mobile Optimierung */
+        @media (max-width: 400px) {
+            .question-word { font-size: 2rem; }
+            .game-btn { font-size: 1.2rem; padding: 20px 5px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    
+    <!-- Header -->
+    <div class="header">
+        <span id="progress-text">1 / 10</span>
+        <div class="score-badge">Punkte: <span id="score">0</span></div>
+    </div>
+
+    <!-- Timer -->
+    <div class="timer-container">
+        <div class="timer-bar" id="timer-bar"></div>
+    </div>
+
+    <!-- Game Area -->
+    <div class="game-area">
+        <div class="question-icon" id="q-icon">🌳</div>
+        <div class="question-word" id="q-word">Дерево</div>
+        <div class="question-translation" id="q-trans">(Der Baum)</div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="options-grid">
+        <button class="game-btn btn-stand" onclick="answer('stood')">СТОИТ<br><small>(Steht)</small></button>
+        <button class="game-btn btn-lie" onclick="answer('lay')">ЛЕЖИТ<br><small>(Liegt)</small></button>
+    </div>
+
+    <!-- Start Screen Overlay -->
+    <div class="overlay" id="start-screen">
+        <h1>Speed Quiz</h1>
+        <p>Du hast nur <strong>3 Sekunden</strong> pro Wort!</p>
+        <p>Entscheide blitzschnell: Steht oder Liegt der Gegenstand?</p>
+        <button class="cta-btn" onclick="startGame()">START</button>
+    </div>
+
+    <!-- End Screen Overlay -->
+    <div class="overlay hidden" id="end-screen">
+        <h1>Zeit vorbei!</h1>
+        <p>Dein Ergebnis:</p>
+        <h2 style="font-size: 3rem; color: var(--primary); margin: 10px 0;"><span id="final-score">0</span>/10</h2>
+        <p id="feedback-text">Nicht schlecht!</p>
+        <button class="cta-btn" onclick="startGame()">Nochmal</button>
+    </div>
+
+</div>
+
+<script>
+    /* Spieldaten */
+    const questions = [
+        { word: "Дерево", trans: "Der Baum", icon: "🌳", type: "stood" },
+        { word: "Ковёр", trans: "Der Teppich", icon: "🧶", type: "lay" },
+        { word: "Ваза", trans: "Die Vase", icon: "🏺", type: "stood" },
+        { word: "Книга", trans: "Das Buch (flach)", icon: "📖", type: "lay" },
+        { word: "Стакан", trans: "Das Glas", icon: "🥛", type: "stood" },
+        { word: "Тарелка", trans: "Der Teller (auf Tisch)", icon: "🍽️", type: "stood" }, // Russische Besonderheit!
+        { word: "Пальто", trans: "Der Mantel (am Boden)", icon: "🧥", type: "lay" },
+        { word: "Человек", trans: "Der Mensch", icon: "🚶", type: "stood" },
+        { word: "Ручка", trans: "Der Stift", icon: "🖊️", type: "lay" },
+        { word: "Дом", trans: "Das Haus", icon: "🏠", type: "stood" },
+        { word: "Снег", trans: "Der Schnee", icon: "❄️", type: "lay" },
+        { word: "Машина", trans: "Das Auto", icon: "🚗", type: "stood" },
+        { word: "Ноутбук", trans: "Laptop (geschlossen)", icon: "💻", type: "lay" },
+        { word: "Шкаф", trans: "Der Schrank", icon: "🚪", type: "stood" },
+        { word: "Мяч", trans: "Der Ball", icon: "⚽", type: "lay" }
+    ];
+
+    /* Variablen */
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let timerInterval;
+    let timeLeft = 0;
+    const TIME_LIMIT = 3000; // 3 Sekunden in ms
+    let isAnswering = false; // Sperre gegen Doppelklicks
+
+    /* Elemente */
+    const elStartScreen = document.getElementById('start-screen');
+    const elEndScreen = document.getElementById('end-screen');
+    const elScore = document.getElementById('score');
+    const elProgress = document.getElementById('progress-text');
+    const elWord = document.getElementById('q-word');
+    const elTrans = document.getElementById('q-trans');
+    const elIcon = document.getElementById('q-icon');
+    const elTimerBar = document.getElementById('timer-bar');
+    const elFinalScore = document.getElementById('final-score');
+    const elFeedback = document.getElementById('feedback-text');
+
+    /* Spiel starten */
+    function startGame() {
+        // UI Reset
+        elStartScreen.classList.add('hidden');
+        elEndScreen.classList.add('hidden');
+        score = 0;
+        currentIndex = 0;
+        elScore.textContent = score;
+
+        // Fragen mischen und die ersten 10 nehmen
+        currentQuestions = [...questions].sort(() => 0.5 - Math.random()).slice(0, 10);
+        
+        loadQuestion();
+    }
+
+    /* Neue Frage laden */
+    function loadQuestion() {
+        if (currentIndex >= currentQuestions.length) {
+            endGame();
+            return;
+        }
+
+        const q = currentQuestions[currentIndex];
+        
+        // UI Update
+        elWord.textContent = q.word;
+        elTrans.textContent = `(${q.trans})`;
+        elIcon.textContent = q.icon;
+        elProgress.textContent = `${currentIndex + 1} / ${currentQuestions.length}`;
+        
+        // Buttons resetten
+        document.querySelectorAll('.game-btn').forEach(btn => {
+            btn.classList.remove('correct', 'wrong');
+        });
+
+        // Timer starten
+        isAnswering = false;
+        startTimer();
+    }
+
+    /* Timer Logik */
+    function startTimer() {
+        clearInterval(timerInterval);
+        let startTime = Date.now();
+        
+        // Sofort voll setzen
+        elTimerBar.style.width = '100%';
+        elTimerBar.style.background = '#f1c40f'; // Gelb
+
+        timerInterval = setInterval(() => {
+            let elapsed = Date.now() - startTime;
+            let percentage = 100 - (elapsed / TIME_LIMIT * 100);
+
+            if (percentage <= 0) {
+                // Zeit abgelaufen
+                clearInterval(timerInterval);
+                elTimerBar.style.width = '0%';
+                handleTimeout();
+            } else {
+                elTimerBar.style.width = percentage + '%';
+                // Farbe ändern wenn knapp
+                if (percentage < 30) elTimerBar.style.background = '#e74c3c'; // Rot
+            }
+        }, 16); // ~60fps
+    }
+
+    /* Antwort prüfen */
+    function answer(userChoice) {
+        if (isAnswering) return;
+        isAnswering = true;
+        clearInterval(timerInterval);
+
+        const currentQ = currentQuestions[currentIndex];
+        const isCorrect = (userChoice === currentQ.type);
+
+        // Visuelles Feedback an Buttons
+        const btnStand = document.querySelector('.btn-stand');
+        const btnLie = document.querySelector('.btn-lie');
+
+        if (isCorrect) {
+            score++;
+            elScore.textContent = score;
+            // Grünes Feedback auf geklickten Button
+            if (userChoice === 'stood') btnStand.classList.add('correct');
+            else btnLie.classList.add('correct');
+        } else {
+            // Rotes Feedback auf geklickten, Grünes auf richtigen
+            if (userChoice === 'stood') {
+                btnStand.classList.add('wrong');
+                btnLie.classList.add('correct');
+            } else {
+                btnLie.classList.add('wrong');
+                btnStand.classList.add('correct');
+            }
+        }
+
+        // Kurze Pause, dann nächste Frage
+        setTimeout(() => {
+            currentIndex++;
+            loadQuestion();
+        }, 800);
+    }
+
+    /* Zeit abgelaufen */
+    function handleTimeout() {
+        isAnswering = true;
+        
+        // Richtige Lösung anzeigen
+        const currentQ = currentQuestions[currentIndex];
+        const btnStand = document.querySelector('.btn-stand');
+        const btnLie = document.querySelector('.btn-lie');
+
+        if (currentQ.type === 'stood') btnStand.classList.add('correct');
+        else btnLie.classList.add('correct');
+
+        setTimeout(() => {
+            currentIndex++;
+            loadQuestion();
+        }, 1000);
+    }
+
+    /* Spielende */
+    function endGame() {
+        elEndScreen.classList.remove('hidden');
+        elFinalScore.textContent = score;
+
+        if (score === 10) elFeedback.textContent = "Perfekt! Du bist ein Profi!";
+        else if (score >= 8) elFeedback.textContent = "Fantastisch!";
+        else if (score >= 5) elFeedback.textContent = "Gut gemacht!";
+        else elFeedback.textContent = "Übung macht den Meister!";
+    }
+
+</script>
+
+</body>
+</html>
