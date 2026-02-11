@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kategorisierung: 12 Beispiele</title>
+    <!-- Polyfill für Touch-Geräte -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    
+    <style>
+        :root {
+            --primary: #8e44ad; /* Lila für kognitive Aufgaben */
+            --primary-light: #f4ecf7;
+            --success: #2ecc71;
+            --error: #e74c3c;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .instruction {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #7f8c8d;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* --- Quell-Bereich (Pool) --- */
+        .source-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            background: var(--primary-light);
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 80px;
+            border: 2px dashed #ccc;
+            margin-bottom: 40px;
+        }
+
+        /* --- Ziel-Bereich (Spalten) --- */
+        .columns-container {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+        }
+
+        .column {
+            flex: 1;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 200px;
+        }
+
+        .column-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-bottom: 3px solid rgba(0,0,0,0.1);
+        }
+
+        .dropzone {
+            flex: 1;
+            padding: 15px;
+            min-height: 350px; /* Etwas höher für mehr Items */
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+
+        .dropzone.drag-over {
+            background-color: #e8daef;
+        }
+
+        /* --- Draggable Items (Karten) --- */
+        .item-card {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.05);
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            user-select: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            touch-action: none;
+        }
+
+        .item-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .item-card:active {
+            cursor: grabbing;
+        }
+
+        .emoji {
+            font-size: 1.4rem;
+        }
+
+        /* Feedback Styles */
+        .item-card.correct {
+            border: 2px solid var(--success);
+            background-color: #d5f5e3;
+        }
+
+        .item-card.incorrect {
+            border: 2px solid var(--error);
+            background-color: #fadbd8;
+        }
+
+        /* --- Buttons --- */
+        .btn-container {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+        }
+        
+        button:hover { opacity: 0.9; }
+        .btn-check { background-color: var(--primary); }
+        .btn-reset { background-color: #7f8c8d; }
+        .btn-solve { background-color: #f39c12; }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .columns-container {
+                flex-direction: column; /* Spalten untereinander */
+            }
+            
+            .dropzone {
+                min-height: 120px; /* Kleiner auf Mobile */
+                flex-direction: row; /* Items nebeneinander in der Zone */
+                flex-wrap: wrap;
+                align-content: flex-start;
+            }
+
+            .item-card {
+                flex: 1 1 auto; /* Flexibel in der Breite */
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Kategorisierung: Die Logik der Dinge</h2>
+    <p class="instruction">
+        Sortiere die 12 Nomen in die richtige Spalte.<br>
+        Überlege: Wie positionieren wir diese Dinge im Russischen normalerweise?<br>
+        <small><em>(Tipp: Runde Dinge ohne Fuß liegen meistens!)</em></small>
+    </p>
+
+    <!-- Pool -->
+    <div class="source-pool" id="source-pool">
+        <!-- 1. Baum (Steht) -->
+        <div class="item-card" draggable="true" data-cat="stood">
+            <span class="emoji">🌳</span> Дерево (Baum)
+        </div>
+        
+        <!-- 2. Teppich (Liegt) -->
+        <div class="item-card" draggable="true" data-cat="lay">
+            <span class="emoji">🧶</span> Ковёр (Teppich)
+        </div>
+        
+        <!-- 3. Teller (Steht - Tricky!) -->
+        <div class="item-card" draggable="true" data-cat="stood">
+            <span class="emoji">🍽️</span> Тарелка (Teller)
+        </div>
+        
+        <!-- 4. Mensch (Steht) -->
+        <div class="item-card" draggable="true" data-cat="stood">
+            <span class="emoji">🚶</span> Человек (Mensch)
+        </div>
+        
+        <!-- 5. Auto (Steht - Tricky!) -->
+        <div class="item-card" draggable="true" data-cat="stood">
+            <span class="emoji">🚗</span> Машина (Auto)
+        </div>
+        
+        <!-- 6. Bild (Hängt) -->
+        <div class="item-card" draggable="true" data-cat="hung">
+            <span class="emoji">🖼️</span> Картина (Bild)
+        </div>
+
+        <!-- NEU: 7. Glas (Steht - Vertikal) -->
+        <div class="item-card" draggable="true" data-cat="stood">
+            <span class="emoji">🥛</span> Стакан (Glas)
+        </div>
+
+        <!-- NEU: 8. Schrank (Steht - Möbel) -->
+        <div class="item-card" draggable="true" data-cat="stood">
+            <span class="emoji">🚪</span> Шкаф (Schrank)
+        </div>
+
+        <!-- NEU: 9. Buch (Liegt - Flach) -->
+        <div class="item-card" draggable="true" data-cat="lay">
+            <span class="emoji">📖</span> Книга (Buch)
+        </div>
+
+        <!-- NEU: 10. Ball (Liegt - Rund/Keine Basis) -->
+        <div class="item-card" draggable="true" data-cat="lay">
+            <span class="emoji">⚽</span> Мяч (Ball)
+        </div>
+
+        <!-- NEU: 11. Löffel (Liegt - Besteck) -->
+        <div class="item-card" draggable="true" data-cat="lay">
+            <span class="emoji">🥄</span> Ложка (Löffel)
+        </div>
+
+        <!-- NEU: 12. Lampe (Hängt - Decke) -->
+        <div class="item-card" draggable="true" data-cat="hung">
+            <span class="emoji">💡</span> Лампа (Lampe)
+        </div>
+    </div>
+
+    <!-- Spalten -->
+    <div class="columns-container">
+        
+        <!-- Spalte 1: Steht -->
+        <div class="column">
+            <div class="column-header">Стоит (Steht)</div>
+            <div class="dropzone" data-accept="stood" id="zone-stood"></div>
+        </div>
+
+        <!-- Spalte 2: Liegt -->
+        <div class="column">
+            <div class="column-header">Лежит (Liegt)</div>
+            <div class="dropzone" data-accept="lay" id="zone-lay"></div>
+        </div>
+
+        <!-- Spalte 3: Hängt -->
+        <div class="column">
+            <div class="column-header">Висит (Hängt)</div>
+            <div class="dropzone" data-accept="hung" id="zone-hung"></div>
+        </div>
+
+    </div>
+
+    <!-- Buttons -->
+    <div class="btn-container">
+        <button class="btn-check" onclick="checkSorting()">Überprüfen</button>
+        <button class="btn-reset" onclick="resetSorting()">Zurücksetzen</button>
+        <button class="btn-solve" onclick="solveSorting()">Lösung anzeigen</button>
+    </div>
+</div>
+
+<script>
+    /* --- Drag & Drop Funktionalität --- */
+    let draggedItem = null;
+
+    // Draggables initialisieren
+    document.querySelectorAll('.item-card').forEach(item => {
+        item.addEventListener('dragstart', function(e) {
+            draggedItem = this;
+            e.dataTransfer.effectAllowed = 'move';
+            this.style.opacity = '0.5';
+        });
+
+        item.addEventListener('dragend', function() {
+            draggedItem = null;
+            this.style.opacity = '1';
+        });
+    });
+
+    // Dropzones initialisieren
+    const zones = document.querySelectorAll('.dropzone, .source-pool');
+
+    zones.forEach(zone => {
+        zone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            if(this.classList.contains('dropzone')) {
+                this.classList.add('drag-over');
+            }
+        });
+
+        zone.addEventListener('dragleave', function() {
+            this.classList.remove('drag-over');
+        });
+
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            if (draggedItem) {
+                this.appendChild(draggedItem);
+                // Styles zurücksetzen
+                draggedItem.classList.remove('correct', 'incorrect');
+            }
+        });
+    });
+
+    /* --- Button Funktionen --- */
+
+    function checkSorting() {
+        const dropzones = document.querySelectorAll('.dropzone');
+        
+        dropzones.forEach(zone => {
+            const acceptedType = zone.getAttribute('data-accept');
+            const items = zone.querySelectorAll('.item-card');
+            
+            items.forEach(item => {
+                const itemType = item.getAttribute('data-cat');
+                
+                if (itemType === acceptedType) {
+                    item.classList.add('correct');
+                    item.classList.remove('incorrect');
+                } else {
+                    item.classList.add('incorrect');
+                    item.classList.remove('correct');
+                }
+            });
+        });
+    }
+
+    function resetSorting() {
+        const sourcePool = document.getElementById('source-pool');
+        const items = document.querySelectorAll('.item-card');
+        
+        // Zufällige Reihenfolge
+        const shuffled = Array.from(items).sort(() => 0.5 - Math.random());
+
+        shuffled.forEach(item => {
+            sourcePool.appendChild(item);
+            item.classList.remove('correct', 'incorrect');
+            item.style.opacity = '1';
+        });
+    }
+
+    function solveSorting() {
+        const items = document.querySelectorAll('.item-card');
+        items.forEach(item => item.classList.remove('correct', 'incorrect'));
+
+        items.forEach(item => {
+            const type = item.getAttribute('data-cat');
+            let targetId = '';
+            
+            if (type === 'stood') targetId = 'zone-stood';
+            if (type === 'lay') targetId = 'zone-lay';
+            if (type === 'hung') targetId = 'zone-hung';
+
+            const target = document.getElementById(targetId);
+            if (target) {
+                target.appendChild(item);
+                item.classList.add('correct'); 
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
