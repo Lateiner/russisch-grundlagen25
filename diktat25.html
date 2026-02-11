@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kreativ: Diktat-Zeichnen (Mit Lösung)</title>
+    
+    <style>
+        :root {
+            --primary: #e67e22;
+            --selected: #3498db;
+            --bg: #fdf2e9;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            
+            /* Raum-Farben */
+            --wall: #fff8e1;
+            --floor: #d35400;
+            --table: #8d6e63;
+            --shelf: #5d4037;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .instruction {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #7f8c8d;
+        }
+
+        /* --- Der "Diktat" Bereich --- */
+        .dictation-box {
+            background: #fff3cd;
+            border: 2px solid #ffeeba;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dictation-nav {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* --- Der Raum --- */
+        .room-container {
+            position: relative;
+            width: 100%;
+            height: 550px;
+            border: 4px solid #333;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Zonen */
+        .zone {
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .room-container.selection-active .zone:hover {
+            opacity: 0.95;
+            outline: 3px dashed var(--selected);
+        }
+
+        .zone-label {
+            position: absolute;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            font-weight: bold;
+            pointer-events: none;
+            color: #333;
+            background: rgba(255,255,255,0.8);
+            padding: 2px 6px;
+            border-radius: 3px;
+            z-index: 5;
+        }
+
+        /* WAND */
+        .zone-wall {
+            flex: 2;
+            background-color: var(--wall);
+            border-bottom: 2px solid #ccc;
+            padding: 10px;
+            display: flex;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-top: 40px;
+        }
+        .label-wall { top: 10px; left: 10px; }
+
+        /* REGAL */
+        .furniture-shelf {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            width: 280px;
+            height: 110px; 
+            background-color: transparent; 
+            z-index: 20;
+            display: flex;
+            align-items: flex-end; 
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .shelf-board {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 15px;
+            background-color: var(--shelf);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+            pointer-events: none; 
+        }
+        .label-shelf { top: -25px; right: 0; color: var(--shelf); }
+
+        /* BODEN */
+        .zone-floor {
+            flex: 1;
+            background-color: var(--floor);
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.05) 10px, rgba(0,0,0,0.05) 20px);
+            padding: 20px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .label-floor { bottom: 10px; right: 10px; color: #fff; background: rgba(0,0,0,0.3); }
+
+        /* TISCH */
+        .furniture-table {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 140px;
+            z-index: 30;
+            display: flex;
+            align-items: flex-start; 
+            justify-content: center;
+            padding-top: 10px; 
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .table-visual {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 110px;
+            background-color: var(--table);
+            border: 2px solid #5d4037;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+        .label-table { bottom: 10px; left: 50%; transform: translateX(-50%); color: white; background: transparent;}
+
+        /* --- Inventar --- */
+        .inventory {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            background: #eee;
+            padding: 15px;
+            border-radius: 8px;
+            min-height: 100px;
+            border: 2px solid #ccc;
+            cursor: pointer;
+        }
+        .inventory:hover { background: #e0e0e0; }
+        .inventory-label { width: 100%; text-align: center; color: #777; font-size: 0.8rem; margin-bottom: 5px; }
+
+        /* --- Items --- */
+        .item {
+            width: 60px;
+            height: 60px;
+            font-size: 30px;
+            background: white;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s, border-color 0.2s;
+            z-index: 100;
+        }
+
+        .item:hover { transform: scale(1.05); border-color: #999; }
+        
+        .item-text {
+            font-size: 9px;
+            line-height: 1;
+            margin-top: 2px;
+            color: #555;
+            text-align: center;
+        }
+
+        .item.selected {
+            border: 3px solid var(--selected);
+            background-color: #eaf2f8;
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+        }
+
+        .item.correct { border: 3px solid #2ecc71; background: #d5f5e3; }
+        .item.wrong { border: 3px solid #e74c3c; background: #fadbd8; }
+
+        /* Buttons */
+        .btn-small { padding: 8px 16px; background: #ccc; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        
+        .btn-check { padding: 12px 24px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; background-color: var(--primary); }
+        .btn-check:hover { opacity: 0.9; }
+
+        .btn-reset { padding: 12px 24px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; background-color: #7f8c8d; }
+        .btn-reset:hover { opacity: 0.9; }
+
+        .btn-solve { padding: 12px 24px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; background-color: #f39c12; }
+        .btn-solve:hover { background-color: #e67e22; }
+
+        .btn-container { margin-top: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .furniture-table { width: 200px; }
+            .furniture-shelf { width: 180px; top: 40px; right: 10px; }
+            .item { width: 50px; height: 50px; font-size: 24px; }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Diktat-Zeichnen (Klick-Modus)</h2>
+    <p class="instruction">
+        1. Klicke auf einen <strong>Gegenstand</strong>.<br>
+        2. Klicke dann auf den <strong>Ort</strong> (Wand, Tisch, Boden, Regal).
+    </p>
+
+    <!-- Anweisung -->
+    <div class="dictation-box" id="instruction-text">Загрузка...</div>
+    <div class="dictation-nav">
+        <button class="btn-small" onclick="prevStep()">❮ Zurück</button>
+        <span id="step-indicator" style="align-self:center; font-weight:bold; color:#666; padding: 0 10px;">1 / 10</span>
+        <button class="btn-small" onclick="nextStep()">Weiter ❯</button>
+    </div>
+
+    <!-- Raum -->
+    <div class="room-container" id="room">
+        
+        <!-- WAND -->
+        <div class="zone zone-wall" onclick="placeItem('wall', event)">
+            <div class="zone-label label-wall">СТЕНА</div>
+
+            <!-- REGAL -->
+            <div class="zone furniture-shelf" onclick="placeItem('shelf', event)">
+                <div class="zone-label label-shelf">ПОЛКА</div>
+                <div class="shelf-board"></div>
+            </div>
+        </div>
+
+        <!-- BODEN -->
+        <div class="zone zone-floor" onclick="placeItem('floor', event)">
+            <div class="zone-label label-floor">ПОЛ</div>
+
+            <!-- TISCH -->
+            <div class="zone furniture-table" onclick="placeItem('table', event)">
+                <div class="zone-label label-table">СТОЛ</div>
+                <div class="table-visual"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventar -->
+    <div class="inventory" id="inventory" onclick="placeItem('inventory', event)">
+        <div class="inventory-label">Inventar (Klicke hier, um Items zurückzulegen)</div>
+        
+        <div class="item" id="vase" onclick="selectItem('vase', event)"><div>🏺</div><div class="item-text">Ваза</div></div>
+        <div class="item" id="book" onclick="selectItem('book', event)"><div>📕</div><div class="item-text">Книга</div></div>
+        <div class="item" id="pic" onclick="selectItem('pic', event)"><div>🖼️</div><div class="item-text">Картина</div></div>
+        <div class="item" id="rug" onclick="selectItem('rug', event)"><div>🧶</div><div class="item-text">Ковёр</div></div>
+        <div class="item" id="apple" onclick="selectItem('apple', event)"><div>🍎</div><div class="item-text">Яблоко</div></div>
+        <div class="item" id="clock" onclick="selectItem('clock', event)"><div>🕰️</div><div class="item-text">Часы</div></div>
+        <div class="item" id="cup" onclick="selectItem('cup', event)"><div>☕</div><div class="item-text">Чашка</div></div>
+        <div class="item" id="ball" onclick="selectItem('ball', event)"><div>⚽</div><div class="item-text">Мяч</div></div>
+        <div class="item" id="flower" onclick="selectItem('flower', event)"><div>🪴</div><div class="item-text">Цветок</div></div>
+        <div class="item" id="bag" onclick="selectItem('bag', event)"><div>👜</div><div class="item-text">Сумка</div></div>
+    </div>
+
+    <div class="btn-container">
+        <button class="btn-check" onclick="checkPlacement()">Überprüfen</button>
+        <button class="btn-reset" onclick="resetRoom()">Zurücksetzen</button>
+        <button class="btn-solve" onclick="solveRoom()">Lösung anzeigen</button>
+    </div>
+</div>
+
+<script>
+    // Aufgaben (10 Stück)
+    const tasks = [
+        { text: "Поставь вазу на стол.", itemId: "vase", targetZone: "table" },
+        { text: "Повесь картину на стену.", itemId: "pic", targetZone: "wall" },
+        { text: "Поставь книгу на полку.", itemId: "book", targetZone: "shelf" },
+        { text: "Положи ковёр на пол.", itemId: "rug", targetZone: "floor" },
+        { text: "Положи яблоко на стол.", itemId: "apple", targetZone: "table" },
+        { text: "Повесь часы на стену.", itemId: "clock", targetZone: "wall" },
+        { text: "Поставь чашку на стол.", itemId: "cup", targetZone: "table" },
+        { text: "Положи мяч на пол.", itemId: "ball", targetZone: "floor" },
+        { text: "Поставь цветок на полку.", itemId: "flower", targetZone: "shelf" },
+        { text: "Поставь сумку на пол.", itemId: "bag", targetZone: "floor" }
+    ];
+
+    let currentStep = 0;
+    let selectedItemId = null;
+
+    function init() {
+        showStep(0);
+    }
+
+    function showStep(index) {
+        if (index < 0) index = 0;
+        if (index >= tasks.length) index = tasks.length - 1;
+        
+        currentStep = index;
+        document.getElementById('instruction-text').innerHTML = tasks[currentStep].text;
+        document.getElementById('step-indicator').textContent = (currentStep + 1) + " / " + tasks.length;
+    }
+
+    function nextStep() { showStep(currentStep + 1); }
+    function prevStep() { showStep(currentStep - 1); }
+
+    // Item auswählen
+    function selectItem(id, event) {
+        event.stopPropagation();
+        if (selectedItemId === id) {
+            document.getElementById(id).classList.remove('selected');
+            document.getElementById('room').classList.remove('selection-active');
+            selectedItemId = null;
+            return;
+        }
+        document.querySelectorAll('.item').forEach(el => el.classList.remove('selected'));
+        selectedItemId = id;
+        document.getElementById(id).classList.add('selected');
+        document.getElementById('room').classList.add('selection-active');
+    }
+
+    // Item platzieren
+    function placeItem(zoneName, event) {
+        event.stopPropagation(); 
+        if (!selectedItemId) return; 
+
+        const item = document.getElementById(selectedItemId);
+        let targetContainer;
+
+        if (zoneName === 'inventory') targetContainer = document.getElementById('inventory');
+        else if (zoneName === 'wall') targetContainer = document.querySelector('.zone-wall');
+        else if (zoneName === 'floor') targetContainer = document.querySelector('.zone-floor');
+        else if (zoneName === 'table') targetContainer = document.querySelector('.furniture-table');
+        else if (zoneName === 'shelf') targetContainer = document.querySelector('.furniture-shelf');
+
+        if (targetContainer) {
+            targetContainer.appendChild(item);
+            item.classList.remove('selected', 'correct', 'wrong');
+            document.getElementById('room').classList.remove('selection-active');
+            selectedItemId = null;
+        }
+    }
+
+    // Überprüfung
+    function checkPlacement() {
+        let allCorrect = true;
+
+        tasks.forEach(task => {
+            const item = document.getElementById(task.itemId);
+            const parent = item.parentElement;
+            let currentZone = "";
+
+            if (parent.classList.contains('furniture-table')) currentZone = "table";
+            else if (parent.classList.contains('furniture-shelf')) currentZone = "shelf";
+            else if (parent.classList.contains('zone-wall')) currentZone = "wall";
+            else if (parent.classList.contains('zone-floor')) currentZone = "floor";
+            else currentZone = "inventory";
+
+            if (currentZone === task.targetZone) {
+                item.classList.add('correct');
+                item.classList.remove('wrong');
+            } else {
+                if (currentZone !== 'inventory') {
+                    item.classList.add('wrong');
+                    item.classList.remove('correct');
+                }
+                allCorrect = false;
+            }
+        });
+
+        const textBox = document.getElementById('instruction-text');
+        if (allCorrect) {
+            textBox.innerHTML = "<span style='color:green'>Молодец! Всё правильно!</span>";
+        } else {
+            textBox.innerHTML = "<span style='color:red'>Ещё есть ошибки. Проверь!</span>";
+        }
+    }
+
+    // Lösung anzeigen
+    function solveRoom() {
+        // Erst Auswahl aufheben
+        if (selectedItemId) {
+             document.getElementById(selectedItemId).classList.remove('selected');
+             selectedItemId = null;
+             document.getElementById('room').classList.remove('selection-active');
+        }
+
+        tasks.forEach(task => {
+            const item = document.getElementById(task.itemId);
+            let targetContainer;
+
+            if (task.targetZone === 'wall') targetContainer = document.querySelector('.zone-wall');
+            else if (task.targetZone === 'floor') targetContainer = document.querySelector('.zone-floor');
+            else if (task.targetZone === 'table') targetContainer = document.querySelector('.furniture-table');
+            else if (task.targetZone === 'shelf') targetContainer = document.querySelector('.furniture-shelf');
+
+            if (targetContainer) {
+                targetContainer.appendChild(item);
+                item.classList.add('correct');
+                item.classList.remove('wrong');
+            }
+        });
+
+        document.getElementById('instruction-text').innerHTML = "<span style='color:#f39c12'>Hier ist die Lösung!</span>";
+    }
+
+    function resetRoom() {
+        const inventory = document.getElementById('inventory');
+        const items = document.querySelectorAll('.item');
+        
+        items.forEach(item => {
+            inventory.appendChild(item);
+            item.classList.remove('correct', 'wrong', 'selected');
+        });
+        
+        selectedItemId = null;
+        document.getElementById('room').classList.remove('selection-active');
+        showStep(0);
+    }
+
+    init();
+</script>
+
+</body>
+</html>
